@@ -26,7 +26,7 @@ export async function login(identifier, password) {
   }
 
   await authMe();
-  toastr.success('You are know logged in!');
+  toastr.success('You are now logged in!');
   navigate('/profile', { replace: true });
 }
 

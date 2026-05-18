@@ -27,7 +27,7 @@ export async function fetchPost(endpoint, body) {
 
 export async function fetchPatch(endpoint, body) {
   try {
-    const response = await fetch(endpoint, {
+    const response = await fetch(`${import.meta.env.VITE_BASE_URL}${endpoint}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json'
@@ -35,6 +35,7 @@ export async function fetchPatch(endpoint, body) {
       credentials: 'include',
       body: JSON.stringify(body)
     });
+    return response;
   } catch {
     toastr.error('An error occured while trying to PATCH');
   }

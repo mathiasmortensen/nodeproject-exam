@@ -6,6 +6,7 @@
   import { auth } from './stores/userStore.svelte';
   import { navigate, Router, Route } from 'svelte5-router';
   import Profile from './pages/Profile.svelte';
+  import Champions from './pages/Champions.svelte';
 </script>
 
 {#if auth.isAuthenticated}
@@ -18,6 +19,7 @@
     <Route path="/login" component={Login} />
     <Route path="/signup" component={Login} />
     <Route path="/profile" component={Profile} />
+    <Route path="/champions" component={Champions}/>
   </Router>
 </main>
 

@@ -2,7 +2,6 @@
   import { navigate } from 'svelte5-router';
   import { signup, login, authMe } from '../util/auth.js';
   import { auth } from '../stores/userStore.svelte.js';
-  import { onMount } from 'svelte';
 
   let identifier = $state('');
   let username = $state('');

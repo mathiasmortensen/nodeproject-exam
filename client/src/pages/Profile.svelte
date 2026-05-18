@@ -1,11 +1,23 @@
 <script>
   import { auth } from '../stores/userStore.svelte.js';
   import { saveRiotProfile } from '../util/profile.js';
+  import { authMe } from '../util/auth.js';
+  import { onMount } from 'svelte';
 
-  let riotId = $state(auth.user.riot_id ?? '');
-  let region = $state(auth.user.riot_region ?? 'euw1');
 
-  let formView = $state(auth.user.riot_id ? 'Saved' : 'Edit');
+  let riotId = $state();
+  let region = $state();
+  let formView = $state('Edit');
+
+
+  $effect(async () => {
+    if(auth.user){
+      riotId = auth.user.riot_id ?? '';
+      region = auth.user.riot_region ?? 'euw1';
+      formView = auth.user.riot_id ? 'Saved' : 'Edit';
+    }
+  });
+
 </script>
 
 <svelte:head>
@@ -21,8 +33,8 @@
 
       {#if formView === 'Saved'}
         <h2>Riot Profile</h2>
-        <p>Riot ID: {auth.user.riot_id}</p>
-        <p>Region: {auth.user.riot_region}</p>
+        <p>Riot ID: {riotId}</p>
+        <p>Region: {region}</p>
 
         <button class="btn" onclick={() => (formView = 'Edit')}>Change </button>
       {/if}
