@@ -67,33 +67,20 @@ app.use(generalLimiter, profileRouter);
 
 
 
-const chatHistory = [];
 
 const io = new Server(server);
 
 io.on('connection', (socket) => {
   console.log('user connected: ', socket.id);
 
-  socket.emit('chat-history', chatHistory);
-
   socket.on('send-message', (message) => {
     const timeAndMessage = {
-      ...message,
-      time: new Date().toLocaleTimeString()
+      time: new Date().toLocaleTimeString(),
+      ...message
     };
-
-    chatHistory.push(timeAndMessage);
-    if (chatHistory.length > 100) {
-      chatHistory.shift();
-    }
 
     io.emit('receive-message', timeAndMessage);
   });
-
-  socket.on('get-messages', () => {
-    socket.emit('chat-history', chatHistory);
-  });
-
   socket.on('disconnect', () => {
     console.log('user disconnected: ', socket.id);
   });

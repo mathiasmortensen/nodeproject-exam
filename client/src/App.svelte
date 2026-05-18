@@ -7,22 +7,25 @@
   import { navigate, Router, Route } from 'svelte5-router';
   import Profile from './pages/Profile.svelte';
   import Champions from './pages/Champions.svelte';
+  import Champion from './pages/Champion.svelte';
+  import GlobalChat from './components/GlobalChat.svelte';
 </script>
 
-{#if auth.isAuthenticated}
-  <Navbar />
-{/if}
+<div class="app">
+  {#if auth.isAuthenticated}
+    <Navbar />
+    <GlobalChat />
+  {/if}
 
-<main class="page-content">
-  <Router>
-    <Route path="/" component={Home} />
-    <Route path="/login" component={Login} />
-    <Route path="/signup" component={Login} />
-    <Route path="/profile" component={Profile} />
-    <Route path="/champions" component={Champions}/>
-  </Router>
-</main>
-
-{#if auth.isAuthenticated}
+  <main class="page-content">
+    <Router>
+      <Route path="/" component={Home} />
+      <Route path="/login" component={Login} />
+      <Route path="/signup" component={Login} />
+      <Route path="/profile" component={Profile} />
+      <Route path="/champions" component={Champions} />
+      <Route path="/champions/:champName" component={Champion} />
+    </Router>
+  </main>
   <Footer />
-{/if}
+</div>

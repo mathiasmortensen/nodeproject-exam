@@ -16,7 +16,7 @@
     {view}
   </title>
 </svelte:head>
-<div class="page-wrapper">
+<div class="app">
   <button class="back" onclick={() => navigate('/')}>Back to home </button>
   {#if view === 'Signup'}
     <div class="page-inner">
