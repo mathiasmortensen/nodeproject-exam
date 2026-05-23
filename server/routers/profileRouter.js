@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import db from '../db/connection.js';
-import { isAuthenticated } from './authRouter.js';
+import { isAuthenticated } from '../middleware/authMiddleware.js';
 
 const router = Router();
 
@@ -20,7 +20,7 @@ router.patch('/profile/riot', isAuthenticated, async (req, res) => {
       `
       UPDATE users
       SET riot_id = $1,
-        riot_region = $2
+      riot_region = $2
       WHERE id = $3
       RETURNING id, email, username, riot_id, riot_region;
       `,
@@ -29,7 +29,7 @@ router.patch('/profile/riot', isAuthenticated, async (req, res) => {
 
     return res.status(200).send(result.rows[0]);
   } catch (error) {
-    return res.status(500).send({ message: 'An error occured whilst trying to save riotid and region' });
+    return res.status(500).send({ message: 'An error occurred whilst trying to save riotid and region' });
   }
 });
 

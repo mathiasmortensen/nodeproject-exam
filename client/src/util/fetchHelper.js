@@ -1,3 +1,5 @@
+import toastr from 'toastr';
+
 export async function fetchGet(endpoint) {
   try {
     const response = await fetch(`${import.meta.env.VITE_BASE_URL}${endpoint}`, {
@@ -5,7 +7,7 @@ export async function fetchGet(endpoint) {
     });
     return response;
   } catch {
-    toastr.error('An error occured while trying to GET');
+    toastr.error('An error occurred while trying to GET');
   }
 }
 
@@ -21,7 +23,7 @@ export async function fetchPost(endpoint, body) {
     });
     return response;
   } catch {
-    toastr.error('An error occured while trying to POST');
+    toastr.error('An error occurred while trying to POST');
   }
 }
 
@@ -37,6 +39,18 @@ export async function fetchPatch(endpoint, body) {
     });
     return response;
   } catch {
-    toastr.error('An error occured while trying to PATCH');
+    toastr.error('An error occurred while trying to PATCH');
+  }
+}
+
+export async function fetchDelete(endpoint) {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_BASE_URL}${endpoint}`, {
+      method: 'DELETE',
+      credentials: 'include'
+    });
+    return response;
+  } catch {
+    toastr.error('An error occurred while trying to DELETE');
   }
 }

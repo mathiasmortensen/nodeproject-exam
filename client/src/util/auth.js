@@ -1,6 +1,6 @@
 import toastr from 'toastr';
 import { navigate } from 'svelte5-router';
-import { fetchGet, fetchPost } from './fetchHelper.js';
+import { fetchDelete, fetchGet, fetchPost } from './fetchHelper.js';
 import { auth } from '../stores/userStore.svelte.js';
 
 export async function authMe() {
@@ -17,9 +17,16 @@ export async function authMe() {
 export async function login(identifier, password) {
   const resp = await fetchPost('/auth/login', { identifier, password });
 
-  if (!resp || !resp.ok) {
+  if (!resp) {
+    toastr.error('Could not login');
+    auth.user = null;
+    auth.isAuthenticated = false;
+    return;
+  }
+
+  if (!resp.ok) {
     const error = await resp.json();
-    toastr.error(error.message);
+    toastr.error(error.message || 'An error occurred');
     auth.user = null;
     auth.isAuthenticated = false;
     return;
@@ -37,7 +44,14 @@ export async function signup(email, username, password) {
     password
   });
 
-  if (!resp || !resp.ok) {
+  if (!resp) {
+    toastr.error('An error occurred');
+    auth.user = null;
+    auth.isAuthenticated = false;
+    return;
+  }
+
+  if (!resp.ok) {
     const error = await resp.json();
     toastr.error(error.message);
     auth.user = null;
@@ -52,7 +66,12 @@ export async function signup(email, username, password) {
 export async function logout() {
   const resp = await fetchPost('/auth/logout', {});
 
-  if (!resp || !resp.ok) {
+  if (!resp) {
+    toastr.error('An error occurred');
+    return;
+  }
+
+  if (!resp.ok) {
     const error = await resp.json();
     toastr.error(error.message);
     return;
@@ -62,4 +81,58 @@ export async function logout() {
   auth.isAuthenticated = false;
   navigate('/login', { replace: true });
   toastr.success('You have logged out..');
+}
+
+export async function deleteAccount() {
+  const resp = await fetchDelete('/auth/me');
+
+  if (!resp) {
+    toastr.error('An error occurred while trying to delete account.');
+    return;
+  }
+
+  if (!resp.ok) {
+    const error = await resp.json();
+    toastr.error(error.message);
+    return;
+  }
+
+  auth.user = null;
+  auth.isAuthenticated = false;
+  navigate('/', { replace: true });
+  toastr.success('Your account has been deleted..');
+}
+
+export async function getUsers() {
+  const resp = await fetchGet('/admin/users');
+  if (!resp) {
+    toastr.error('An error occurred while trying to fetch users');
+    return;
+  }
+
+  if (!resp.ok) {
+    const error = await resp.json();
+    toastr.error(error.message);
+    return;
+  }
+  return await resp.json();
+}
+
+export async function deleteUser(userId) {
+  const resp = await fetchDelete(`/admin/users/${userId}`);
+
+  if (!resp) {
+    toastr.error('An error occurred while trying to delete user..');
+    return;
+  }
+
+  if (!resp.ok) {
+    const error = await resp.json();
+    toastr.error(error.message);
+    return;
+  }
+
+  const json = await resp.json();
+
+  toastr.success(json.message);
 }

@@ -11,8 +11,6 @@ export async function sendWelcomeEmail(to, username) {
   });
 
   if (error) {
-    return console.error({ error });
+    return console.log(error.message);
   }
-
-  console.log({ data });
 }

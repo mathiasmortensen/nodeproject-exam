@@ -1,17 +1,14 @@
 <script>
   import { auth } from '../stores/userStore.svelte.js';
   import { saveRiotProfile } from '../util/profile.js';
-  import { authMe } from '../util/auth.js';
+  import { authMe, deleteAccount } from '../util/auth.js';
   import { onMount } from 'svelte';
   import toastr from 'toastr';
 
   let riotId = $state();
   let region = $state();
   let formView = $state('Edit');
-
-  onMount(async () => {
-    await authMe();
-  });
+  let trulyDelete = $state(false);
 
   $effect(async () => {
     if (auth.user) {
@@ -22,56 +19,99 @@
   });
 </script>
 
-<svelte:head>
-  <title>Profile</title>
-</svelte:head>
-<div id="app">
-  <h1>Profile</h1>
+<svelte:head><title>Profile</title></svelte:head>
 
-  {#if auth.user}
-    <p>Username: {auth.user.username}</p>
-    <p>Email: {auth.user.email}</p>
+<div class="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
+  <div class="bg-zinc-900 border border-zinc-800 h-3/5 w-3/12 p-8 flex flex-col gap-4">
+    <h1 class="text-2xl text-amber-400">Profile</h1>
 
-    {#if formView === 'Saved'}
-      <h2>Riot Profile</h2>
-      <p>Riot ID: {riotId}</p>
-      <p>Region: {region}</p>
+    {#if auth.user}
+      <p class="text-sm text-zinc-400">Username: <span class="text-zinc-100">{auth.user.username}</span></p>
+      <p class="text-sm text-zinc-400">Email: <span class="text-zinc-100">{auth.user.email}</span></p>
 
-      <button class="btn" onclick={() => (formView = 'Edit')}>Change </button>
+      <hr class="border-zinc-800" />
+
+      {#if formView === 'Saved'}
+        <h2 class="text-lg text-zinc-100">Riot Profile</h2>
+        <p class="text-sm text-zinc-400">Riot ID: <span class="text-zinc-100">{riotId}</span></p>
+        <p class="text-sm text-zinc-400">Region: <span class="text-zinc-100">{region}</span></p>
+        <button
+          onclick={() => (formView = 'Edit')}
+          class="bg-amber-400 text-zinc-950 py-2 text-sm hover:cursor-pointer"
+        >
+          Change
+        </button>
+      {/if}
+
+      {#if formView === 'Edit'}
+        <form
+          onsubmit={(e) => {
+            e.preventDefault();
+            const [riotName, tagLine] = riotId.split('#');
+            if (!riotName || !tagLine) {
+              toastr.error('Riot ID is wrong. example: (fodsvamp#222)');
+              return;
+            }
+            if (!riotId.includes('#')) {
+              toastr.error('Riot ID must contain #');
+              return;
+            }
+            if (tagLine.length > 5 || tagLine.length < 3) {
+              toastr.error('Riot taglines are between 3-5 characters');
+              return;
+            }
+            saveRiotProfile(riotId, region);
+            formView = 'Saved';
+          }}
+          class="flex flex-col gap-4"
+        >
+          <h2 class="text-lg text-zinc-100">Riot Profile</h2>
+          <input
+            type="text"
+            placeholder="example#euw"
+            bind:value={riotId}
+            required
+            class="border border-zinc-800 bg-zinc-950 text-zinc-100 px-4 py-2 text-sm"
+          />
+          <select bind:value={region} class="border border-zinc-800 bg-zinc-950 text-zinc-100 px-4 py-2 text-sm">
+            <option value="euw1">EUW</option>
+            <option value="eun1">EUNE</option>
+            <option value="na1">NA</option>
+            <option value="kr">KR</option>
+            <option value="jp1">JP</option>
+          </select>
+          <button type="submit" class="bg-amber-400 text-zinc-950 py-2 text-sm hover:cursor-pointer">
+            Save Riot Profile
+          </button>
+        </form>
+      {/if}
+
+      {#if trulyDelete === false}
+        <button
+          class="text-sm bg-amber-400 hover:cursor-pointer py-2 hover:"
+          onclick={(e) => {
+            trulyDelete = true;
+          }}>Delete Account</button
+        >
+      {/if}
+
+      {#if trulyDelete === true}
+        <button
+          class=" border border-zinc-700 py-2 bg-zinc-950 text-red-400 hover:text-red-600 cursor-pointer"
+          onclick={async (e) => {
+            await deleteAccount();
+          }}>I truly want to delete my account</button
+        >
+
+        <button
+          class="border border-zinc-700 text-zinc-300 py-2 hover:cursor-pointer"
+          onclick={(e) => {
+            trulyDelete = false;
+          }}>Cancel</button
+        >
+      {/if}
+    {:else}
+      <p class="text-sm text-zinc-400">You're not logged in...</p>
     {/if}
-
-    {#if formView === 'Edit'}
-      <form
-        onsubmit={(event) => {
-          event.preventDefault();
-          const [riotName, tagLine] = riotId.split('#');
-
-          if (!riotName || !tagLine) {
-            toastr.error('Riot ID is wrong. example: (fodsvamp#222)');
-            return;
-          }
-
-          if (!riotId.includes('#')) {
-            toastr.error('Riot ID must contain #');
-            return;
-          }
-          saveRiotProfile(riotId, region);
-          formView = 'Saved';
-        }}
-      >
-        <input type="text" placeholder="example#euw" bind:value={riotId} required />
-
-        <select bind:value={region}>
-          <option value="euw1">EUW</option>
-          <option value="eun1">EUNE</option>
-          <option value="na1">NA</option>
-          <option value="kr">KR</option>
-          <option value="jp1">JP</option>
-        </select>
-        <button type="submit">Save Riot Profile</button>
-      </form>
-    {/if}
-  {:else}
-    <p>You're not logged in...</p>
-  {/if}
+  </div>
 </div>

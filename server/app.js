@@ -6,6 +6,7 @@ import session from 'express-session';
 import favoritesRouter from './routers/favoritesRouter.js';
 import authRouter from './routers/authRouter.js';
 import profileRouter from './routers/profileRouter.js';
+import adminRouter from './routers/adminRouter.js';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
@@ -36,7 +37,16 @@ const authLimiter = rateLimit({
   ipv6Subnet: 56
 });
 
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        imgSrc: ["'self'", 'data:', 'https://ddragon.leagueoflegends.com']
+      }
+    }
+  })
+);
 
 app.use(
   cors({
@@ -65,24 +75,25 @@ app.use(generalLimiter, favoritesRouter);
 
 app.use(generalLimiter, profileRouter);
 
+app.use(authLimiter, adminRouter);
 
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+    credentials: true
+  }
+});
 
-
-const io = new Server(server);
+let onlineUsers = 0;
 
 io.on('connection', (socket) => {
-  console.log('user connected: ', socket.id);
+  onlineUsers++;
 
-  socket.on('send-message', (message) => {
-    const timeAndMessage = {
-      time: new Date().toLocaleTimeString(),
-      ...message
-    };
+  io.emit('online-count', onlineUsers);
 
-    io.emit('receive-message', timeAndMessage);
-  });
   socket.on('disconnect', () => {
-    console.log('user disconnected: ', socket.id);
+    onlineUsers--;
+    io.emit('online-count', onlineUsers);
   });
 });
 

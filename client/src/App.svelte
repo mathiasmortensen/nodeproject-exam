@@ -8,24 +8,52 @@
   import Profile from './pages/Profile.svelte';
   import Champions from './pages/Champions.svelte';
   import Champion from './pages/Champion.svelte';
-  import GlobalChat from './components/GlobalChat.svelte';
+  import AuthGuard from './components/AuthGuard.svelte';
+  import AdminDashboard from './pages/AdminDashboard.svelte';
+  import AdminGuard from './components/AdminGuard.svelte';
+  import { onMount } from 'svelte';
+  import { authMe } from './util/auth';
+
+  onMount(async () => {
+    await authMe();
+  });
 </script>
 
-<div class="app">
-  {#if auth.isAuthenticated}
-    <Navbar />
-    <GlobalChat />
-  {/if}
+{#if auth.isAuthenticated}
+  <Navbar />
+{/if}
 
-  <main class="page-content">
-    <Router>
-      <Route path="/" component={Home} />
-      <Route path="/login" component={Login} />
-      <Route path="/signup" component={Login} />
-      <Route path="/profile" component={Profile} />
-      <Route path="/champions" component={Champions} />
-      <Route path="/champions/:champName" component={Champion} />
-    </Router>
-  </main>
-  <Footer />
-</div>
+<Router>
+  <Route path="/" component={Home} />
+
+  <Route path="/login" component={Login} />
+
+  <Route path="/signup" component={Login} />
+
+  <Route path="/admin">
+    <AdminGuard>
+      <AdminDashboard />
+    </AdminGuard>
+  </Route>
+
+  <Route path="/profile">
+    <AuthGuard>
+      <Profile />
+    </AuthGuard>
+  </Route>
+
+  <Route path="/champions">
+    <AuthGuard>
+      <Champions />
+    </AuthGuard>
+  </Route>
+
+  <Route path="/champions/:champId">
+    {#snippet children(params)}
+      <AuthGuard>
+        <Champion champId={params.champId} />
+      </AuthGuard>
+    {/snippet}
+  </Route>
+</Router>
+<Footer />

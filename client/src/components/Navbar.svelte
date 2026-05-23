@@ -1,24 +1,30 @@
 <script>
   import { auth } from '../stores/userStore.svelte.js';
   import { logout } from '../util/auth.js';
+  import OnlineUsers from './OnlineUsers.svelte';
 </script>
 
 {#if auth.isAuthenticated}
-  <nav class="wrapper">
-    <div class="inner-wrapper">
-      <a href="/profile">Profile</a>
-      <a href="/champions">Champions</a>
+  <nav class="fixed top-0 left-0 right-0 bg-zinc-950 border-b border-zinc-800 px-6 py-3 flex items-center gap-6 z-10">
+    <a href="/profile" class="text-sm text-zinc-100 hover:text-amber-400">Profile</a>
+    <a href="/champions" class="text-sm text-zinc-100 hover:text-amber-400">Champions</a>
+    {#if auth.user.is_admin}
+      <a href="/admin" class="text-sm text-zinc-100 hover:text-amber-400">Admin Dashboard</a>
+    {/if}
+
+    <div class="ml-auto flex items-center gap-6">
+      <OnlineUsers />
+
       <a
-        class="logoutLink"
-        onclick={(event) => {
-          event.preventDefault();
+        href="/"
+        onclick={(e) => {
+          e.preventDefault();
           logout();
         }}
-        aria-label="logout button"
-        href="/"
+        class="text-sm text-zinc-400 hover:text-amber-400"
       >
-        Logout</a
-      >
+        Logout
+      </a>
     </div>
   </nav>
 {/if}

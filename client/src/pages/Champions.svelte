@@ -1,18 +1,25 @@
 <script>
   import { onMount } from 'svelte';
-  import { getChampions, assignRoles } from '../util/champions.js';
+  import { getChampions } from '../util/champions.js';
   import { Link } from 'svelte5-router';
   import { authMe } from '../util/auth.js';
   import { auth } from '../stores/userStore.svelte.js';
 
-  let selectedTag = '';
-  let champions = [];
+  let selectedTag = $state('');
+  let champions = $state([]);
+
+  const roles = ['Fighter', 'Tank', 'Support', 'Mage', 'Marksman', 'Assassin', 'Favorites'];
+  let favoriteChampions = $state([]);
 
   onMount(async () => {
-    await authMe();
     if (auth.user) {
       champions = await getChampions();
-      await assignRoles(champions);
+    }
+  });
+
+  $effect(async () => {
+    if (auth.user && auth.user.favoriteChampions) {
+      favoriteChampions = auth.user.favoriteChampions;
     }
   });
 </script>
@@ -21,34 +28,42 @@
   <title>Champions</title>
 </svelte:head>
 
-<div id="app">
+<main class="p-8 mt-7 bg-zinc-950 min-h-screen">
   {#if auth.user}
-    <h1>Champions</h1>
-    <div class="tag-buttons">
-      <button on:click={() => (selectedTag = 'Fighter')}>Fighter</button>
-      <button on:click={() => (selectedTag = 'Tank')}>Tank</button>
-      <button on:click={() => (selectedTag = 'Support')}>Support</button>
-      <button on:click={() => (selectedTag = 'Mage')}>Mage</button>
-      <button on:click={() => (selectedTag = 'Marksman')}>Marksman</button>
-      <button on:click={() => (selectedTag = 'Assassin')}>Assassin</button>
+    <h1 class="mb-6 text-2xl text-amber-400">Champions</h1>
+
+    <div class="mb-8 flex flex-wrap gap-3">
+      {#each roles as role}
+        <button
+          onclick={() => (selectedTag = selectedTag === role ? '' : role)}
+          class="border p-3 w-24 h-24 hover:cursor-pointer {selectedTag === role
+            ? 'border-amber-400 bg-zinc-900 text-amber-400'
+            : 'border-zinc-800 bg-zinc-950 text-zinc-400'}"
+        >
+          <img src={`/ddragon/roles/${role}.png`} alt={role} class="mx-auto mb-1 h-8 w-8" />
+          <span class="text-sm">{role}</span>
+        </button>
+      {/each}
     </div>
-    <br />
 
     {#if selectedTag}
-      <div class="champion-row">
-        {#each champions.filter((champ) => champ.tags && champ.tags.includes(selectedTag)) as champ}
+      <div class="flex flex-wrap gap-4">
+        {#each champions.filter((champ) => {
+          if (selectedTag === 'Favorites') {
+            return favoriteChampions.includes(champ.id);
+          }
+          return champ.tags.includes(selectedTag);
+        }) as champ}
           <Link to={`/champions/${champ.id}`}>
-            <div class="champion-card">
-              <img src={`/ddragon/champion/${champ.image.full}`} alt={champ.name} />
-              <p>{champ.name}</p>
+            <div class="w-28 h-28 border border-zinc-800 bg-zinc-900 p-3 text-center text-zinc-100">
+              <img src={`/ddragon/champion/${champ.image.full}`} alt={champ.name} class="mx-auto mb-2 h-12 w-12" />
+              <p class="text-sm">{champ.name}</p>
             </div>
           </Link>
         {/each}
       </div>
     {:else}
-      <p>Choose a tag to see champions!</p>
+      <p class="text-zinc-400">Choose a role to see champions!</p>
     {/if}
-  {:else}
-    <p>Loading...</p>
   {/if}
-</div>
+</main>
