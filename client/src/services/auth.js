@@ -111,3 +111,17 @@ export async function resetPassword(token, password) {
   toastr.success(json.message);
   navigate('/login', { replace: true });
 }
+
+export async function changePassword(oldPassword, newPassword, newPasswordAgain) {
+  const resp = await fetchPost('/auth/change-password', { oldPassword, newPassword, newPasswordAgain });
+
+  const json = await resp.json();
+
+  if (!resp.ok) {
+    toastr.error(json.message);
+    return false;
+  }
+
+  toastr.success(json.message);
+  await logout();
+}

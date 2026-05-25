@@ -48,13 +48,14 @@ export async function postFavoriteChampion(championId) {
 
     if (!resp.ok) {
       toastr.error(json.message);
-      return;
+      return false;
     }
+
     toastr.success(json.message);
-    return;
+    return true;
   } catch (error) {
     toastr.error('An error occurred while trying to favorite a champion..');
-    return;
+    return false;
   }
 }
 

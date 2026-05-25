@@ -30,21 +30,22 @@ export async function saveRiotProfile(riotId, region) {
   toastr.success('Riot Profile Saved..');
 }
 
-export function riotIdChecker(riotId, region) {
+export async function riotIdChecker(riotId, region) {
   if (!riotId.includes('#')) {
     toastr.error('Riot ID must contain #');
-    return;
+    return false;
   }
 
   const [riotName, tagLine] = riotId.split('#');
 
   if (tagLine.length > 5 || tagLine.length < 3) {
     toastr.error('Riot taglines are between 3-5 characters');
-    return;
+    return false;
   } else if (!riotName || !tagLine) {
     toastr.error('Riot ID is wrong. example: (fodsvamp#222)');
-    return;
+    return false;
   }
 
-  saveRiotProfile(riotId, region);
+  const success = await saveRiotProfile(riotId, region);
+  return success;
 }

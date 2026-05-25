@@ -1,7 +1,7 @@
 <script>
   import { auth } from '../stores/userStore.svelte.js';
   import { riotIdChecker, saveRiotProfile } from '../services/profile.js';
-  import { deleteAccount } from '../services/auth.js';
+  import { deleteAccount, logout } from '../services/auth.js';
   import toastr from 'toastr';
 
   let riotId = $state();
@@ -42,9 +42,15 @@
         </button>
       {:else if formView === 'Edit'}
         <form
-          onsubmit={(e) => {
+          onsubmit={async (e) => {
             e.preventDefault();
-            riotIdChecker(riotId, region);
+
+            const success = await riotIdChecker(riotId, region);
+
+            if (!success) {
+              return;
+            }
+
             formView = 'Saved';
           }}
           class="flex flex-col gap-4"
@@ -69,6 +75,24 @@
           </button>
         </form>
       {/if}
+
+      <button
+        type="button"
+        class="text-sm border border-zinc-700 text-zinc-300 py-2 hover:cursor-pointer hover:text-amber-400"
+        onclick={async () => {}}
+      >
+        Change Password
+      </button>
+
+      <button
+        type="button"
+        class="text-sm border border-zinc-700 text-zinc-300 py-2 hover:cursor-pointer hover:text-amber-400"
+        onclick={async () => {
+          await logout();
+        }}
+      >
+        Logout
+      </button>
 
       {#if !trulyDelete}
         <button

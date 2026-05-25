@@ -215,4 +215,58 @@ router.post('/auth/reset-password', async (req, res) => {
   return res.status(200).send({ message: 'Password has been changed for the user..' });
 });
 
+router.patch('/auth/change-password', isAuthenticated, async (req, res) => {
+  const { oldPassword, newPassword, newPasswordAgain } = req.body;
+
+  if (!oldPassword || !newPassword || !newPasswordAgain) {
+    return res.status(400).send({ message: 'All fields must be filled..' });
+  }
+
+  if (newPassword !== newPasswordAgain) {
+    return res.status(400).send({ message: 'New password must be the same..' });
+  }
+
+  if (oldPassword === newPassword) {
+    return res.status(400).send({ message: 'New password cannot be same as old password..' });
+  }
+
+  try {
+    const result = await db.query(
+      `
+      SELECT id, password_hash
+      FROM users
+      WHERE id = $1
+      `,
+      [req.session.userId]
+    );
+
+    const user = result.rows[0];
+
+    if (!user) {
+      return res.status(404).send({ message: 'User does not exist...' });
+    }
+
+    const oldValidPassword = await bcrypt.compare(oldPassword, user.password_hash);
+
+    if (!oldValidPassword) {
+      return res.status(401).send({ message: 'Current password is wrong..' });
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, saltRounds);
+
+    await db.query(
+      `
+      UPDATE users
+      SET password_hash = $1
+      WHERE id = $2
+      `,
+      [passwordHash, req.session.userId]
+    );
+
+    return res.status(200).send({ message: 'Password has succesfully been changed!' });
+  } catch (error) {
+    return res.status(500).send({ message: 'An error occurred during password change..' });
+  }
+});
+
 export default router;

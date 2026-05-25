@@ -2,12 +2,20 @@
   import { navigate } from 'svelte5-router';
   import { signup, login } from '../services/auth.js';
   import toastr from 'toastr';
+  import { onMount } from 'svelte';
+  import { auth } from '../stores/userStore.svelte.js';
 
   let identifier = $state('');
   let username = $state('');
   let email = $state('');
   let password = $state('');
   let view = $state(window.location.pathname === '/signup' ? 'Signup' : 'Login');
+
+  onMount(async () => {
+    if (auth.user) {
+      navigate('/profile', { replace: true });
+    }
+  });
 </script>
 
 <svelte:head>

@@ -44,12 +44,16 @@
               <button
                 onclick={async (e) => {
                   e.preventDefault();
+
                   if (!isFavorite) {
-                    await postFavoriteChampion(champ.id, champ.name);
-                    auth.user.favoriteChampions.push(champ.id);
+                    const success = await postFavoriteChampion(champ.id);
+                    if (!success) {
+                      return;
+                    }
+                    auth.user.favoriteChampions = [...auth.user.favoriteChampions, champ.id];
                     isFavorite = true;
                   } else {
-                    await removeFavoriteChampion(champ.id);
+                    const success = await removeFavoriteChampion(champ.id);
                     auth.user.favoriteChampions = auth.user.favoriteChampions.filter((id) => id !== champ.id);
                     isFavorite = false;
                   }

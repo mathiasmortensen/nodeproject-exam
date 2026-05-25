@@ -41,7 +41,7 @@ app.use(generalLimiter);
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: 30,
+  limit: 50,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
   ipv6Subnet: 56
