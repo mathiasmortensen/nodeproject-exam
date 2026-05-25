@@ -1,8 +1,8 @@
 <script>
   import { onMount } from 'svelte';
   import { navigate } from 'svelte5-router';
-  import { authMe } from '../util/auth.js';
   import { auth } from '../stores/userStore.svelte';
+  import { authMe } from '../services/auth.js';
 
   let { children } = $props();
 

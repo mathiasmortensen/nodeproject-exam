@@ -9,11 +9,21 @@ import profileRouter from './routers/profileRouter.js';
 import adminRouter from './routers/adminRouter.js';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import cors from 'cors';
 import path from 'path';
 
 const app = express();
 const server = createServer(app);
+
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        imgSrc: ["'self'", 'data:', 'https://ddragon.leagueoflegends.com']
+      }
+    }
+  })
+);
 
 app.use(express.static('../client/dist'));
 
@@ -21,7 +31,7 @@ app.use(express.json());
 
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 50,
+  limit: 100,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
   ipv6Subnet: 56
@@ -36,24 +46,6 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
   ipv6Subnet: 56
 });
-
-app.use(
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        imgSrc: ["'self'", 'data:', 'https://ddragon.leagueoflegends.com']
-      }
-    }
-  })
-);
-
-app.use(
-  cors({
-    origin: '*',
-    credentials: true
-  })
-);
 
 app.use(
   session({
@@ -88,7 +80,6 @@ let onlineUsers = 0;
 
 io.on('connection', (socket) => {
   onlineUsers++;
-
   io.emit('online-count', onlineUsers);
 
   socket.on('disconnect', () => {

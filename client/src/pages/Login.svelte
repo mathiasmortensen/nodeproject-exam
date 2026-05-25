@@ -1,6 +1,6 @@
 <script>
   import { navigate } from 'svelte5-router';
-  import { signup, login } from '../util/auth.js';
+  import { signup, login } from '../services/auth.js';
   import toastr from 'toastr';
 
   let identifier = $state('');
@@ -54,16 +54,14 @@
           class="border border-zinc-800 bg-zinc-950 text-zinc-100 px-4 py-2 text-sm focus:outline-none"
         />
 
-        <button onclick={(e) => {}} type="submit" class="bg-amber-400 text-zinc-950 py-2 text-sm hover:cursor-pointer"> Sign up </button>
+        <button type="submit" class="bg-amber-400 text-zinc-950 py-2 text-sm hover:cursor-pointer"> Sign up </button>
       </form>
 
       <p class="text-sm text-zinc-400 text-center mt-4">
         Already have an account?
         <button onclick={() => (view = 'Login')} class="text-amber-400 text-sm hover:cursor-pointer">Log in</button>
       </p>
-    {/if}
-
-    {#if view === 'Login'}
+    {:else if view === 'Login'}
       <form
         onsubmit={(e) => {
           e.preventDefault();
@@ -91,8 +89,11 @@
       </form>
 
       <p class="text-sm text-zinc-400 text-center mt-4">
-        Not a user yet?
-        <button onclick={() => (view = 'Signup')} class="text-amber-400 text-sm hover:cursor-pointer">Sign up</button>
+        Cant remember your password?
+        <button
+          onclick={() => navigate('/forgot-password', { replace: true })}
+          class="text-amber-400 text-sm hover:cursor-pointer">Forgot Password</button
+        >
       </p>
     {/if}
   </div>

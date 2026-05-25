@@ -8,7 +8,7 @@ router.get('/admin/users', isAdmin, async (req, res) => {
   try {
     const result = await db.query(
       `
-      SELECT * from users;
+      SELECT id, email, username, riot_region, riot_id, is_admin from users;
       `
     );
 
@@ -21,12 +21,17 @@ router.get('/admin/users', isAdmin, async (req, res) => {
 });
 
 router.delete('/admin/users/:id', isAdmin, async (req, res) => {
-  const userIdToBeDeleted = req.params.id;
+  const userIdToBeDeleted = Number(req.params.id);
+
+  if (userIdToBeDeleted === req.session.userId) {
+    return res.status(400).send({ message: 'You cannot delete an admin user.' });
+  }
   try {
     const result = await db.query(
       `
-      DELETE FROM users WHERE id = $1;
-      `[userIdToBeDeleted]
+      DELETE FROM users WHERE id = $1 RETURNING id;
+      `,
+      [userIdToBeDeleted]
     );
 
     if (result.rowCount === 0) {

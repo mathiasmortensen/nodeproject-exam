@@ -4,7 +4,7 @@
   import Login from './pages/Login.svelte';
   import Home from './pages/Home.svelte';
   import { auth } from './stores/userStore.svelte';
-  import { navigate, Router, Route } from 'svelte5-router';
+  import { Router, Route } from 'svelte5-router';
   import Profile from './pages/Profile.svelte';
   import Champions from './pages/Champions.svelte';
   import Champion from './pages/Champion.svelte';
@@ -12,7 +12,9 @@
   import AdminDashboard from './pages/AdminDashboard.svelte';
   import AdminGuard from './components/AdminGuard.svelte';
   import { onMount } from 'svelte';
-  import { authMe } from './util/auth';
+  import { authMe } from './services/auth.js';
+  import ForgotPassword from './pages/ForgotPassword.svelte';
+  import ResetPassword from './pages/ResetPassword.svelte';
 
   onMount(async () => {
     await authMe();
@@ -46,6 +48,14 @@
     <AuthGuard>
       <Champions />
     </AuthGuard>
+  </Route>
+
+  <Route path="/forgot-password">
+    <ForgotPassword />
+  </Route>
+
+  <Route path="/reset-password">
+    <ResetPassword />
   </Route>
 
   <Route path="/champions/:champId">

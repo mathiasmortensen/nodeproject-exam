@@ -1,8 +1,8 @@
 <script>
   import { onMount } from 'svelte';
-  import { getChampions } from '../util/champions.js';
+  import { getChampions } from '../services/champions.js';
   import { Link } from 'svelte5-router';
-  import { authMe } from '../util/auth.js';
+  import { authMe } from '../services/auth.js';
   import { auth } from '../stores/userStore.svelte.js';
 
   let selectedTag = $state('');

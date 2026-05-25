@@ -1,7 +1,6 @@
 <script>
-  import { getChampion, postFavoriteChampion, removeFavoriteChampion } from '../util/champions.js';
+  import { getChampion, postFavoriteChampion, removeFavoriteChampion } from '../services/champions.js';
   import { Link } from 'svelte5-router';
-  import { authMe } from '../util/auth.js';
   import { auth } from '../stores/userStore.svelte.js';
 
   let { champId } = $props();
@@ -47,12 +46,12 @@
                   e.preventDefault();
                   if (!isFavorite) {
                     await postFavoriteChampion(champ.id, champ.name);
+                    auth.user.favoriteChampions.push(champ.id);
                     isFavorite = true;
-                    await authMe();
                   } else {
                     await removeFavoriteChampion(champ.id);
+                    auth.user.favoriteChampions = auth.user.favoriteChampions.filter((id) => id !== champ.id);
                     isFavorite = false;
-                    await authMe();
                   }
                 }}>{isFavorite ? '❌' : '⭐'}</button
               >
@@ -101,10 +100,7 @@
 
                   <div>
                     <p class="text-sm text-amber-400">
-                      {#if i === 0}Q{/if}
-                      {#if i === 1}W{/if}
-                      {#if i === 2}E{/if}
-                      {#if i === 3}R{/if}
+                      {['Q', 'W', 'E', 'R'][i]}
                     </p>
 
                     <h3 class="text-zinc-100">

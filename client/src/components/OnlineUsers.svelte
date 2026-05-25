@@ -22,6 +22,5 @@
 </script>
 
 <div class="flex items-center gap-2 text-sm text-zinc-400 border border-zinc-800 bg-zinc-900 px-3 py-1">
-  <span class="text-amber-400">●</span>
-  <span>{onlineCount} {onlineCount === 1 ? 'user' : 'users'} online</span>
+  <span class="text-amber-400">{onlineCount} {onlineCount === 1 ? 'User' : 'Users'} Connected</span>
 </div>

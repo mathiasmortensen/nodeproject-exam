@@ -1,9 +1,9 @@
 import toastr from 'toastr';
 
-toastr.option = {
+toastr.options = {
   closeButton: true,
   progressBar: true,
-  positionClass: 'toast-top-right',
-  timeOut: 1500,
+  positionClass: 'toast-bottom-right',
+  timeOut: 1000,
   preventDuplicates: true
 };

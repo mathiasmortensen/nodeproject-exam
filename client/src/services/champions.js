@@ -1,21 +1,17 @@
 import toastr from 'toastr';
-import { fetchDelete, fetchGet, fetchPost } from './fetchHelper';
+import { fetchDelete, fetchGet, fetchPost } from '../util/fetchHelper';
 
 export async function getChampions() {
   const resp = await fetch('/ddragon/champion.json');
+
+  const json = await resp.json();
+
   if (!resp.ok) {
     toastr.error(`An error occurred: ${resp.status} ${resp.statusText} `);
     return;
   }
 
-  if (!resp) {
-    toastr.error('An error occurred while trying to get champions..');
-    return;
-  }
-
   const champions = [];
-
-  const json = await resp.json();
 
   for (const champId in json.data) {
     const champ = json.data[champId];
@@ -30,42 +26,31 @@ export async function getChampion(champName) {
   try {
     const resp = await fetch(`/ddragon/champion/${champName}.json`);
 
-    if (!resp) {
-      toastr.error(`An error occurred while trying to fetch ${champName} `);
-      return;
-    }
+    const json = await resp.json();
 
     if (!resp.ok) {
       toastr.error(`An error occured: ${resp.status} ${resp.statusText}`);
       return;
     }
-    const json = await resp.json();
     return json.data[champName];
   } catch (error) {
     toastr.error(`An error occurred while trying to fetch ${champName} `);
   }
 }
 
-export async function postFavoriteChampion(championId, championName) {
+export async function postFavoriteChampion(championId) {
   try {
     const resp = await fetchPost('/api/favorites', {
-      championId,
-      championName
+      championId
     });
 
-    if (!resp) {
-      toastr.error('An error occurred while trying to favorite a champion..');
-      return;
-    }
+    const json = await resp.json();
 
     if (!resp.ok) {
-      const error = await resp.json();
-      toastr.error(error.message);
+      toastr.error(json.message);
       return;
     }
-
-    const json = await resp.json();
-    toastr.success(`${championName} added to favorites!!`);
+    toastr.success(json.message);
     return;
   } catch (error) {
     toastr.error('An error occurred while trying to favorite a champion..');
@@ -77,19 +62,16 @@ export async function removeFavoriteChampion(championId) {
   try {
     const resp = await fetchDelete(`/api/favorites/${championId}`);
 
-    if (!resp) {
-      toastr.error('An error occurred while trying to remove favorite...');
+    const json = await resp.json();
+
+    if (!resp.ok) {
+      toastr.error(error.message);
       return;
     }
 
-    if (!resp.ok) {
-      const error = await resp.json();
-      toastr.error('An error occurred while trying to remove favorite champion..');
-    }
-
-    toastr.success('Champion removed from favorites!');
+    toastr.success(json.message);
     return;
   } catch (error) {
-    toastr.error(`An error occurred while trying to DELETE ${champName} from favorites..`);
+    toastr.error(`An error occurred while trying to DELETE ${championId} from favorites..`);
   }
 }

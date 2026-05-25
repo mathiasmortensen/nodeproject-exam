@@ -4,7 +4,7 @@ import { isAuthenticated } from '../middleware/authMiddleware.js';
 
 const router = Router();
 
-router.patch('/profile/riot', isAuthenticated, async (req, res) => {
+router.patch('/api/profile/riot', isAuthenticated, async (req, res) => {
   const { riotId, region } = req.body;
 
   if (!riotId || !region) {
@@ -22,7 +22,7 @@ router.patch('/profile/riot', isAuthenticated, async (req, res) => {
       SET riot_id = $1,
       riot_region = $2
       WHERE id = $3
-      RETURNING id, email, username, riot_id, riot_region;
+      RETURNING id, email, username, riot_id, riot_region, is_admin;
       `,
       [riotId, region, req.session.userId]
     );

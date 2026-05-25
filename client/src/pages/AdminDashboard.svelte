@@ -1,10 +1,10 @@
 <script>
   import { onMount } from 'svelte';
-  import { getUsers } from '../util/auth.js';
-  import { deleteUser } from '../util/auth.js';
+  import { getUsers } from '../services/admin.js';
+  import { deleteUser } from '../services/admin.js';
 
   let users = $state([]);
-  let trulyDelete = $state(false);
+  let deleteUserId = $state(null);
 
   onMount(async () => {
     users = await getUsers();
@@ -20,18 +20,18 @@
       <table class="w-full text-left">
         <thead>
           <tr>
-            <th class="p-4 text-sm">ID</th>
-            <th class="p-4 text-sm">Username</th>
-            <th class="p-4 text-sm">Email</th>
-            <th class="p-4 text-sm">Riot ID</th>
-            <th class="p-4 text-sm">Riot Region</th>
-            <th class="p-4 text-sm">Type</th>
-            <th class="p-4 text-sm">Actions</th>
+            <th class="p-4 text-sm text-amber-400">ID</th>
+            <th class="p-4 text-sm text-amber-400">Username</th>
+            <th class="p-4 text-sm text-amber-400">Email</th>
+            <th class="p-4 text-sm text-amber-400">Riot ID</th>
+            <th class="p-4 text-sm text-amber-400">Riot Region</th>
+            <th class="p-4 text-sm text-amber-400">Type</th>
+            <th class="p-4 text-sm text-amber-400">Actions</th>
           </tr>
         </thead>
 
         <tbody>
-          {#each users as user}
+          {#each users as user, index}
             <tr class="border-b border-zinc-800">
               <td class="p-4 text-sm text-zinc-400">{user.id}</td>
               <td class="p-4 text-sm text-zinc-400">{user.username}</td>
@@ -43,28 +43,46 @@
                 {#if user.is_admin}
                   Admin
                 {:else}
-                  Admin
+                  User
                 {/if}
               </td>
-              {#if trulyDelete === false}
-                <td class="p-4 text-sm text-red-200">
+              {#if deleteUserId !== user.id}
+                <td class="p-4 text-sm align-middle">
                   <button
-                    class=" bg-red-400"
-                    onclick={(e) => {
-                      trulyDelete = true;
-                    }}>Delete</button
+                    class="bg-amber-400 text-zinc-950 px-3 py-2 rounded hover:cursor-pointer"
+                    onclick={() => {
+                      deleteUserId = user.id;
+                    }}
                   >
+                    Delete
+                  </button>
                 </td>
-              {/if}
-              {#if trulyDelete === true}
-                <td class="p-4 text-sm text-200">
-                  <button
-                    class="bg-red-600"
-                    onclick={async (e) => {
-                      await deleteUser(user.id);
-                    }}>Delete User</button
-                  ></td
-                >
+              {:else}
+                <td class="p-4 text-sm align-middle">
+                  <div class="flex items-center gap-2 whitespace-nowrap">
+                    <button
+                      class="rounded bg-red-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-red-700 cursor-pointer"
+                      onclick={async () => {
+                        const deleted = await deleteUser(user.id);
+                        if (deleted) {
+                          users.splice(index, 1);
+                          deleteUserId = null;
+                        }
+                      }}
+                    >
+                      Confirm
+                    </button>
+
+                    <button
+                      class="text-sm text-zinc-400 hover:text-zinc-200 hover:cursor-pointer"
+                      onclick={() => {
+                        deleteUserId = null;
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </td>
               {/if}
             </tr>
           {/each}

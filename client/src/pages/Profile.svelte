@@ -1,8 +1,7 @@
 <script>
   import { auth } from '../stores/userStore.svelte.js';
-  import { saveRiotProfile } from '../util/profile.js';
-  import { authMe, deleteAccount } from '../util/auth.js';
-  import { onMount } from 'svelte';
+  import { riotIdChecker, saveRiotProfile } from '../services/profile.js';
+  import { deleteAccount } from '../services/auth.js';
   import toastr from 'toastr';
 
   let riotId = $state();
@@ -41,26 +40,11 @@
         >
           Change
         </button>
-      {/if}
-
-      {#if formView === 'Edit'}
+      {:else if formView === 'Edit'}
         <form
           onsubmit={(e) => {
             e.preventDefault();
-            const [riotName, tagLine] = riotId.split('#');
-            if (!riotName || !tagLine) {
-              toastr.error('Riot ID is wrong. example: (fodsvamp#222)');
-              return;
-            }
-            if (!riotId.includes('#')) {
-              toastr.error('Riot ID must contain #');
-              return;
-            }
-            if (tagLine.length > 5 || tagLine.length < 3) {
-              toastr.error('Riot taglines are between 3-5 characters');
-              return;
-            }
-            saveRiotProfile(riotId, region);
+            riotIdChecker(riotId, region);
             formView = 'Saved';
           }}
           class="flex flex-col gap-4"
@@ -86,18 +70,16 @@
         </form>
       {/if}
 
-      {#if trulyDelete === false}
+      {#if !trulyDelete}
         <button
-          class="text-sm bg-amber-400 hover:cursor-pointer py-2 hover:"
+          class="text-sm bg-amber-400 hover:cursor-pointer py-2"
           onclick={(e) => {
             trulyDelete = true;
           }}>Delete Account</button
         >
-      {/if}
-
-      {#if trulyDelete === true}
+      {:else}
         <button
-          class=" border border-zinc-700 py-2 bg-zinc-950 text-red-400 hover:text-red-600 cursor-pointer"
+          class="border border-zinc-700 py-2 bg-zinc-950 text-red-400 hover:text-red-600 cursor-pointer"
           onclick={async (e) => {
             await deleteAccount();
           }}>I truly want to delete my account</button
@@ -110,8 +92,6 @@
           }}>Cancel</button
         >
       {/if}
-    {:else}
-      <p class="text-sm text-zinc-400">You're not logged in...</p>
     {/if}
   </div>
 </div>

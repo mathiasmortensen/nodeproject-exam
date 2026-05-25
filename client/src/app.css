@@ -1,1 +1,24 @@
 @import 'tailwindcss';
+
+#toast-container > div {
+  box-shadow: none;
+  border-radius: 0;
+  border: 1px solid #3f3f46;
+  opacity: 1;
+  padding: 12px 16px;
+  font-size: 14px;
+}
+
+#toast-container > .toast-success {
+  background-color: #18181b;
+  background-image: none !important;
+  color: #facc15;
+  border-color: #facc15;
+}
+
+#toast-container > .toast-error {
+  background-color: #18181b;
+  background-image: none !important;
+  color: #f87171;
+  border-color: #ef4444;
+}

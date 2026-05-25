@@ -1,4 +1,5 @@
 import db from '../db/connection.js';
+import { rateLimit } from 'express-rate-limit';
 
 export function isAuthenticated(req, res, next) {
   if (!req.session?.userId) {
@@ -29,3 +30,13 @@ export async function isAdmin(req, res, next) {
     return res.status(500).send({ message: 'An error occurred..' });
   }
 }
+
+export const forgotPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 1,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: {
+    message: 'Too many reset attemps, try again later...'
+  }
+});

@@ -1,9 +1,11 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import db from '../db/connection.js';
-import { sendWelcomeEmail } from '../util/mailer.js';
+import { sendResetPasswordEmail, sendWelcomeEmail } from '../util/mailer.js';
 import 'dotenv/config';
 import { isAuthenticated } from '../middleware/authMiddleware.js';
+import { forgotPasswordLimiter } from '../middleware/authMiddleware.js';
 
 const router = Router();
 const saltRounds = 10;
@@ -84,7 +86,6 @@ router.post('/auth/login', async (req, res) => {
   } catch (error) {
     return res.status(500).send({ message: 'An error occurred whilst trying to log you in..' });
   }
-  return res.status(500).send({ message: 'An error occurred whilst trying to log you in..' });
 });
 
 router.post('/auth/logout', isAuthenticated, (req, res) => {
@@ -130,12 +131,11 @@ router.get('/auth/me', isAuthenticated, async (req, res) => {
   } catch (error) {
     return res.status(500).send({ message: 'An error occurred' });
   }
-  return res.status(500).send({ message: 'An error occurred' });
 });
 
-router.delete('/auth/me', async (req, res) => {
+router.delete('/auth/me', isAuthenticated, async (req, res) => {
   try {
-    const request = await db.query(
+    await db.query(
       `
       DELETE FROM users WHERE id = $1
       `,
@@ -146,6 +146,73 @@ router.delete('/auth/me', async (req, res) => {
   } catch (error) {
     res.status(500).send({ message: 'User could not be deleted.' });
   }
+});
+
+router.post('/auth/forgot-password', forgotPasswordLimiter, async (req, res) => {
+  const { email } = req.body;
+
+  const user = await db.query(`SELECT id, email FROM users WHERE email = $1`, [email]);
+
+  if (user.rowCount === 0) {
+    return res.status(200).send({ message: 'If the email exists, a reset link has been sent.' });
+  }
+
+  const token = crypto.randomUUID();
+  const expiresAt = new Date(Date.now() + 1000 * 60 * 15);
+
+  try {
+    await db.query(
+      `
+      UPDATE users
+      SET reset_password_token = $1,
+      reset_password_expires_at = $2
+      WHERE id = $3
+      `,
+      [token, expiresAt, user.rows[0].id]
+    );
+
+    const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${token}`;
+    await sendResetPasswordEmail(email, resetLink);
+
+    return res.status(200).send({ message: 'If the emails exists, a reset link has been sent..' });
+  } catch (error) {
+    return res.status(500).send({ message: 'An unknown error occurred..' });
+  }
+});
+
+router.post('/auth/reset-password', async (req, res) => {
+  const { token, password } = req.body;
+
+  try {
+    const result = await db.query(
+      `
+  SELECT id FROM users WHERE reset_password_token = $1
+  AND reset_password_expires_at > NOW();
+  `,
+      [token]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(400).send({ message: 'Invalid or expired..' });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    await db.query(
+      `
+  UPDATE users
+  SET password_hash = $1,
+  reset_password_token = NULL,
+  reset_password_expires_at = NULL
+  WHERE id = $2
+  `,
+      [passwordHash, result.rows[0].id]
+    );
+  } catch (error) {
+    return res.status(500).send({ message: 'An error occurred...' });
+  }
+
+  return res.status(200).send({ message: 'Password has been changed for the user..' });
 });
 
 export default router;
