@@ -33,4 +33,3 @@ server/db/*.db
 .idea/
 *.iml
 
-client/public/ddragon/
