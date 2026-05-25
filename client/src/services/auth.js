@@ -1,6 +1,6 @@
 import toastr from 'toastr';
 import { navigate } from 'svelte5-router';
-import { fetchDelete, fetchGet, fetchPost } from '../util/fetchHelper.js';
+import { fetchDelete, fetchGet, fetchPatch, fetchPost } from '../util/fetchHelper.js';
 import { auth } from '../stores/userStore.svelte.js';
 
 export async function authMe() {
@@ -113,7 +113,7 @@ export async function resetPassword(token, password) {
 }
 
 export async function changePassword(oldPassword, newPassword, newPasswordAgain) {
-  const resp = await fetchPost('/auth/change-password', { oldPassword, newPassword, newPasswordAgain });
+  const resp = await fetchPatch('/auth/change-password', { oldPassword, newPassword, newPasswordAgain });
 
   const json = await resp.json();
 

@@ -1,13 +1,16 @@
 <script>
   import { auth } from '../stores/userStore.svelte.js';
   import { riotIdChecker, saveRiotProfile } from '../services/profile.js';
-  import { deleteAccount, logout } from '../services/auth.js';
+  import { changePassword, deleteAccount, logout } from '../services/auth.js';
   import toastr from 'toastr';
 
   let riotId = $state();
   let region = $state();
-  let formView = $state('Edit');
+  let formView = $state('Saved');
   let trulyDelete = $state(false);
+  let oldPassword = $state();
+  let newPassword = $state();
+  let newPasswordAgain = $state();
 
   $effect(async () => {
     if (auth.user) {
@@ -25,6 +28,15 @@
     <h1 class="text-2xl text-amber-400">Profile</h1>
 
     {#if auth.user}
+      {#if formView !== 'Saved'}
+        <button
+          onclick={() => (formView = 'Saved')}
+          class="text-sm text-zinc-400 hover:text-amber-400 mb-6 block hover:cursor-pointer text-left"
+        >
+          Cancel
+        </button>
+      {/if}
+
       <p class="text-sm text-zinc-400">Username: <span class="text-zinc-100">{auth.user.username}</span></p>
       <p class="text-sm text-zinc-400">Email: <span class="text-zinc-100">{auth.user.email}</span></p>
 
@@ -38,7 +50,16 @@
           onclick={() => (formView = 'Edit')}
           class="bg-amber-400 text-zinc-950 py-2 text-sm hover:cursor-pointer"
         >
-          Change
+          Edit Profile
+        </button>
+        <button
+          type="button"
+          class="text-sm border border-zinc-700 text-zinc-300 py-2 hover:cursor-pointer hover:text-amber-400"
+          onclick={async () => {
+            await logout();
+          }}
+        >
+          Logout
         </button>
       {:else if formView === 'Edit'}
         <form
@@ -74,27 +95,57 @@
             Save Riot Profile
           </button>
         </form>
-      {/if}
+        <button
+          type="button"
+          class="text-sm bg-amber-400 hover:cursor-pointer py-2"
+          onclick={async () => {
+            formView = 'Password';
+          }}
+        >
+          Change Password
+        </button>
+      {:else if formView === 'Password'}
+        <form
+          class="flex flex-col gap-2"
+          onsubmit={async (e) => {
+            e.preventDefault();
 
-      <button
-        type="button"
-        class="text-sm border border-zinc-700 text-zinc-300 py-2 hover:cursor-pointer hover:text-amber-400"
-        onclick={async () => {}}
-      >
-        Change Password
-      </button>
+            const success = await changePassword(oldPassword, newPassword, newPasswordAgain);
 
-      <button
-        type="button"
-        class="text-sm border border-zinc-700 text-zinc-300 py-2 hover:cursor-pointer hover:text-amber-400"
-        onclick={async () => {
-          await logout();
-        }}
-      >
-        Logout
-      </button>
+            if (!success) {
+              return;
+            }
 
-      {#if !trulyDelete}
+            formView = 'Saved';
+          }}
+        >
+          <input
+            type="password"
+            placeholder="Old password"
+            bind:value={oldPassword}
+            class="border border-zinc-800 bg-zinc-950 text-zinc-100 px-4 py-2 text-sm focus:outline-none"
+          />
+          <input
+            type="password"
+            placeholder="New Password"
+            bind:value={newPassword}
+            class="border border-zinc-800 bg-zinc-950 text-zinc-100 px-4 py-2 text-sm focus:outline-none"
+          />
+          <input
+            type="password"
+            placeholder="New Password Again"
+            bind:value={newPasswordAgain}
+            class="border border-zinc-800 bg-zinc-950 text-zinc-100 px-4 py-2 text-sm focus:outline-none"
+          />
+          <button type="submit" class="text-sm bg-amber-400 hover:cursor-pointer py-2">Change Password</button>
+        </form>
+        <button
+          class="border border-zinc-700 py-2 bg-zinc-950 text-red-400 hover:text-red-600 cursor-pointer"
+          onclick={async (e) => {
+            await deleteAccount();
+          }}>I truly want to delete my account</button
+        >
+      {:else if trulyDelete}
         <button
           class="text-sm bg-amber-400 hover:cursor-pointer py-2"
           onclick={(e) => {
@@ -102,13 +153,6 @@
           }}>Delete Account</button
         >
       {:else}
-        <button
-          class="border border-zinc-700 py-2 bg-zinc-950 text-red-400 hover:text-red-600 cursor-pointer"
-          onclick={async (e) => {
-            await deleteAccount();
-          }}>I truly want to delete my account</button
-        >
-
         <button
           class="border border-zinc-700 text-zinc-300 py-2 hover:cursor-pointer"
           onclick={(e) => {
