@@ -15,6 +15,7 @@
   import { authMe } from './services/auth.js';
   import ForgotPassword from './pages/ForgotPassword.svelte';
   import ResetPassword from './pages/ResetPassword.svelte';
+  import Bravery from './pages/Bravery.svelte';
 
   onMount(async () => {
     await authMe();
@@ -48,6 +49,11 @@
     <AuthGuard>
       <Champions />
     </AuthGuard>
+  </Route>
+
+  <Route path="/bravery">
+    <Bravery />
+
   </Route>
 
   <Route path="/forgot-password">

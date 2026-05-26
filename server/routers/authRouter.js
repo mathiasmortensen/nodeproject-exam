@@ -1,9 +1,9 @@
+import 'dotenv/config';
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import db from '../db/connection.js';
 import { sendResetPasswordEmail, sendWelcomeEmail } from '../util/mailer.js';
-import 'dotenv/config';
 import { isAuthenticated } from '../middleware/authMiddleware.js';
 import { forgotPasswordLimiter } from '../middleware/authMiddleware.js';
 
