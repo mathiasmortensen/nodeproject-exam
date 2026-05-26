@@ -160,10 +160,13 @@ Create .env files based on the examples provided on github..
 
 ### client/.env
 
+```env
 VITE_BASE_URL=http://localhost:8080
+```
 
 ### server/.env
 
+```env
 DB_USER=your_database_user
 DB_HOST_NAME=localhost
 DB_NAME=your_database_name
@@ -180,6 +183,7 @@ CLIENT_URL=http://localhost:5173
 TEST_EMAIL=admin@example.com
 TEST_USERNAME=adminuser
 TEST_PASSWORD=adminpassword
+```
 
 ## Installation
 
