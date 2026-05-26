@@ -12,8 +12,6 @@ CREATE TABLE IF NOT EXISTS
     password_hash TEXT NOT NULL,
     reset_password_token TEXT,
     reset_password_expires_at TIMESTAMPTZ,
-    riot_region TEXT,
-    riot_id TEXT,
     is_admin BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
   );

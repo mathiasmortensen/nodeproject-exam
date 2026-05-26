@@ -5,18 +5,16 @@
   let email = $state();
 </script>
 
-<div class="min-h-screen bg-zinc-950 flex items-center justify-center">
+<svelte:head><title>UpLoL | Forgot Password</title></svelte:head>
+
+<main class="min-h-screen bg-zinc-950/80 flex items-center justify-center">
   <div class="bg-zinc-900 border border-zinc-800 p-8 w-full max-w-sm">
-    <button
-      onclick={() => navigate('/')}
-      class="text-sm text-zinc-400 hover:text-amber-400 mb-6 block hover:cursor-pointer"
-    >
+    <button onclick={() => navigate('/')} class="text-sm text-zinc-400 hover:text-amber-400 mb-6 block cursor-pointer">
       Back to home
     </button>
 
     <form
-      onsubmit={(e) => {
-        e.preventDefault();
+      onsubmit={() => {
         forgotPassword(email);
       }}
       class="flex flex-col gap-4"
@@ -27,12 +25,10 @@
         type="email"
         placeholder="Email"
         bind:value={email}
-        class="border border-zinc-800 bg-zinc-950 text-zinc-100 px-4 py-2 text-sm focus:outline-none"
+        class="border border-zinc-800 bg-zinc-950 text-zinc-100 px-4 py-2 text-sm focus:border-amber-400 outline-none"
       />
 
-      <button type="submit" class="bg-amber-400 text-zinc-950 py-2 text-sm hover:cursor-pointer">
-        Forgot Password
-      </button>
+      <button type="submit" class="bg-amber-400 text-zinc-950 py-2 text-sm cursor-pointer"> Forgot Password </button>
     </form>
   </div>
-</div>
+</main>

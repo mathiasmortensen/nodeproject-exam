@@ -20,7 +20,7 @@ export async function getItems() {
         continue;
       }
 
-      items.push({ id: itemId, name: item.name, image: item.image.full, gold: item.gold.total });
+      items.push({ id: itemId, name: item.name, image: item.image.full });
     }
     return items;
   } catch (error) {

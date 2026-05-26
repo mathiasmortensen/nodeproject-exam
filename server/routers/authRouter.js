@@ -30,6 +30,13 @@ router.post('/auth/signup', async (req, res) => {
     return res.status(400).send({ message: 'All fields must be filled.' });
   }
 
+  if (username.length < 4) {
+    return res.status(400).send({ message: 'Username is too short..' });
+  }
+  if (password.length < 7) {
+    return res.status(400).send({ message: 'Password must be atleast 7 characters..' });
+  }
+
   try {
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
@@ -92,18 +99,17 @@ router.post('/auth/logout', isAuthenticated, (req, res) => {
   try {
     req.session.destroy();
     res.clearCookie('connect.sid');
+    return res.status(200).send({ message: 'Logout succesful..' });
   } catch (error) {
     return res.status(500).send({ message: 'An error occurred whilst trying to log you out..' });
   }
-
-  return res.status(200).send({ message: 'Logout succesful..' });
 });
 
 router.get('/auth/me', isAuthenticated, async (req, res) => {
   try {
     const result = await db.query(
       `
-      SELECT id, email, username, riot_id, riot_region, is_admin
+      SELECT id, email, username, is_admin
       FROM users
       WHERE id = $1
       `,
@@ -113,8 +119,6 @@ router.get('/auth/me', isAuthenticated, async (req, res) => {
     const user = result.rows[0];
 
     if (!user) {
-      req.session.destroy();
-
       return res.status(404).send({ message: 'User not found' });
     }
 
@@ -135,6 +139,23 @@ router.get('/auth/me', isAuthenticated, async (req, res) => {
 
 router.delete('/auth/me', isAuthenticated, async (req, res) => {
   try {
+    const result = await db.query(
+      `
+      SELECT is_admin FROM users WHERE id = $1
+      `,
+      [req.session.userId]
+    );
+
+    const user = result.rows[0];
+
+    if (!user) {
+      return res.status(404).send({ message: 'User not found...' });
+    }
+
+    if (user.is_admin === true) {
+      return res.status(400).send({ message: 'Admins cannot delete their own accounts..' });
+    }
+
     await db.query(
       `
       DELETE FROM users WHERE id = $1
@@ -142,7 +163,15 @@ router.delete('/auth/me', isAuthenticated, async (req, res) => {
       [req.session.userId]
     );
 
-    res.status(200).send({ message: `User with ID: ${req.session.userId} has been deleted.` });
+    req.session.destroy((error) => {
+      if (error) {
+        res.send({ message: 'User has been deleted, but the session could not be destroyed..' });
+      }
+    });
+
+    res.clearCookie('connect.sid');
+
+    res.status(200).send({ message: `User has been deleted.` });
   } catch (error) {
     res.status(500).send({ message: 'User could not be deleted.' });
   }
@@ -151,16 +180,16 @@ router.delete('/auth/me', isAuthenticated, async (req, res) => {
 router.post('/auth/forgot-password', forgotPasswordLimiter, async (req, res) => {
   const { email } = req.body;
 
-  const user = await db.query(`SELECT id, email FROM users WHERE email = $1`, [email]);
-
-  if (user.rowCount === 0) {
-    return res.status(200).send({ message: 'If the email exists, a reset link has been sent.' });
-  }
-
-  const token = crypto.randomUUID();
-  const expiresAt = new Date(Date.now() + 1000 * 60 * 15);
-
   try {
+    const result = await db.query(`SELECT id, email FROM users WHERE email = $1`, [email]);
+
+    if (result.rowCount === 0) {
+      return res.status(200).send({ message: 'If the email exists, a reset link has been sent.' });
+    }
+
+    const token = crypto.randomUUID();
+    const expiresAt = new Date(Date.now() + 1000 * 60 * 15);
+
     await db.query(
       `
       UPDATE users
@@ -168,15 +197,15 @@ router.post('/auth/forgot-password', forgotPasswordLimiter, async (req, res) => 
       reset_password_expires_at = $2
       WHERE id = $3
       `,
-      [token, expiresAt, user.rows[0].id]
+      [token, expiresAt, result.rows[0].id]
     );
 
     const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${token}`;
     await sendResetPasswordEmail(email, resetLink);
 
-    return res.status(200).send({ message: 'If the emails exists, a reset link has been sent..' });
+    return res.status(200).send({ message: 'If the email exists, a reset link has been sent..' });
   } catch (error) {
-    return res.status(500).send({ message: 'An unknown error occurred..' });
+    return res.status(500).send({ message: 'An error occurred..' });
   }
 });
 
@@ -196,7 +225,7 @@ router.post('/auth/reset-password', async (req, res) => {
       return res.status(400).send({ message: 'Invalid or expired..' });
     }
 
-    const passwordHash = await bcrypt.hash(password, 10);
+    const passwordHash = await bcrypt.hash(password, saltRounds);
 
     await db.query(
       `
@@ -208,11 +237,11 @@ router.post('/auth/reset-password', async (req, res) => {
   `,
       [passwordHash, result.rows[0].id]
     );
+
+    return res.status(200).send({ message: 'Password has been changed for the user..' });
   } catch (error) {
     return res.status(500).send({ message: 'An error occurred...' });
   }
-
-  return res.status(200).send({ message: 'Password has been changed for the user..' });
 });
 
 router.patch('/auth/change-password', isAuthenticated, async (req, res) => {

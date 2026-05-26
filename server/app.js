@@ -5,7 +5,6 @@ import helmet from 'helmet';
 import session from 'express-session';
 import favoritesRouter from './routers/favoritesRouter.js';
 import authRouter from './routers/authRouter.js';
-import profileRouter from './routers/profileRouter.js';
 import adminRouter from './routers/adminRouter.js';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
@@ -40,7 +39,7 @@ const generalLimiter = rateLimit({
 app.use(generalLimiter);
 
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   limit: 50,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
@@ -64,8 +63,6 @@ app.use(
 app.use(authLimiter, authRouter);
 
 app.use(generalLimiter, favoritesRouter);
-
-app.use(generalLimiter, profileRouter);
 
 app.use(authLimiter, adminRouter);
 

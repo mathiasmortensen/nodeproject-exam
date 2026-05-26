@@ -8,7 +8,7 @@ router.get('/admin/users', isAdmin, async (req, res) => {
   try {
     const result = await db.query(
       `
-      SELECT id, email, username, riot_region, riot_id, is_admin from users;
+      SELECT id, email, username, is_admin from users;
       `
     );
 

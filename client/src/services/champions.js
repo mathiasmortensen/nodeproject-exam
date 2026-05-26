@@ -66,7 +66,7 @@ export async function removeFavoriteChampion(championId) {
     const json = await resp.json();
 
     if (!resp.ok) {
-      toastr.error(error.message);
+      toastr.error(json.message);
       return;
     }
 

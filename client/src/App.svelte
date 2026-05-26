@@ -16,15 +16,14 @@
   import ForgotPassword from './pages/ForgotPassword.svelte';
   import ResetPassword from './pages/ResetPassword.svelte';
   import Bravery from './pages/Bravery.svelte';
+  import Privacy from './pages/Privacy.svelte';
 
   onMount(async () => {
     await authMe();
   });
 </script>
 
-{#if auth.isAuthenticated}
-  <Navbar />
-{/if}
+<Navbar />
 
 <Router>
   <Route path="/" component={Home} />
@@ -34,9 +33,15 @@
   <Route path="/signup" component={Login} />
 
   <Route path="/admin">
-    <AdminGuard>
-      <AdminDashboard />
-    </AdminGuard>
+    <AuthGuard>
+      <AdminGuard>
+        <AdminDashboard />
+      </AdminGuard>
+    </AuthGuard>
+  </Route>
+
+  <Route path="/privacy">
+    <Privacy />
   </Route>
 
   <Route path="/profile">
@@ -52,8 +57,9 @@
   </Route>
 
   <Route path="/bravery">
-    <Bravery />
-
+    <AuthGuard>
+      <Bravery />
+    </AuthGuard>
   </Route>
 
   <Route path="/forgot-password">

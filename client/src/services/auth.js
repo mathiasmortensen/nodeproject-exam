@@ -4,14 +4,16 @@ import { fetchDelete, fetchGet, fetchPatch, fetchPost } from '../util/fetchHelpe
 import { auth } from '../stores/userStore.svelte.js';
 
 export async function authMe() {
+  auth.loading = true;
   const resp = await fetchGet('/auth/me');
   if (!resp || !resp.ok) {
     auth.user = null;
     auth.isAuthenticated = false;
-    return;
+  } else {
+    auth.user = await resp.json();
+    auth.isAuthenticated = true;
   }
-  auth.user = await resp.json();
-  auth.isAuthenticated = true;
+  auth.loading = false;
 }
 
 export async function login(identifier, password) {
@@ -80,7 +82,7 @@ export async function deleteAccount() {
   auth.user = null;
   auth.isAuthenticated = false;
   navigate('/', { replace: true });
-  toastr.success('Your account has been deleted..');
+  toastr.success(json.message);
 }
 
 export async function forgotPassword(email) {

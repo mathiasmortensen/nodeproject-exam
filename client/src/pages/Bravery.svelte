@@ -1,7 +1,6 @@
 <script>
   import { onMount } from 'svelte';
   import { getItems } from '../services/items.js';
-  import { auth } from '../stores/userStore.svelte';
   import { getChampions } from '../services/champions.js';
 
   let items = $state([]);
@@ -11,11 +10,7 @@
   let chosenChampion = $state();
 
   function getRandomIndex(length) {
-    const randomValues = new Uint32Array(1);
-
-    crypto.getRandomValues(randomValues);
-    const randomNumber = randomValues[0];
-    return randomNumber % length;
+    return Math.floor(Math.random() * length);
   }
 
   function getRandomChampion() {
@@ -36,7 +31,7 @@
 
     const randomItems = new Set();
 
-    while(randomItems.size < 6){
+    while (randomItems.size < 6) {
       const randomIndex = getRandomIndex(items.length);
       const item = items[randomIndex];
       randomItems.add(item);
@@ -50,44 +45,47 @@
   });
 </script>
 
-<svelte:head><title>UpLoL | Bravery | Items</title></svelte:head>
+<svelte:head><title>UpLoL | Bravery</title></svelte:head>
 
-<main class="min-h-screen bg-zinc-950 p-8 pt-16">
+<main class="min-h-screen bg-zinc-950/80 p-8 pt-16">
   <div class="max-w-lg mx-auto">
-    <h1 class="mb-6 text-2xl text-amber-400">Bravery | Champs and Items</h1>
+    <h1 class="mb-6 text-2xl text-amber-400 text-center">Bravery | Champs and Items</h1>
 
-    <div class="flex gap-3">
+    <div class="flex gap-3 justify-center">
       <button
         onclick={() => {
           chosenItems = getSixRandomItems();
           chosenChampion = undefined;
         }}
-        class="bg-amber-400 text-zinc-950 px-4 py-2 text-sm hover:bg-amber-300 transition-colors">Items</button
+        class="bg-amber-400 text-zinc-950 px-4 py-2 text-sm hover:bg-amber-300 cursor-pointer">Items</button
       >
       <button
         onclick={() => {
           chosenChampion = getRandomChampion();
           chosenItems = [];
         }}
-        class="bg-amber-400 text-zinc-950 px-4 py-2 text-sm hover:bg-amber-300 transition-colors">Champion</button
+        class="bg-amber-400 text-zinc-950 px-4 py-2 text-sm hover:bg-amber-300 cursor-pointer">Champion</button
       >
       <button
         onclick={() => {
           chosenChampion = getRandomChampion();
           chosenItems = getSixRandomItems();
         }}
-        class="bg-amber-400 text-zinc-950 px-4 py-2 text-sm hover:bg-amber-300 transition-colors">Champ + Items</button
+        class="bg-amber-400 text-zinc-950 px-4 py-2 text-sm hover:bg-amber-300 cursor-pointer">Champ + Items</button
       >
     </div>
 
     {#if chosenChampion || chosenItems.length > 0}
-      <div class="mt-8 bg-zinc-900 border border-zinc-800 p-6 flex gap-6 items-start">
+      <div class="mt-8 bg-zinc-900 border border-zinc-800 p-6 flex gap-6 items-start justify-center">
         {#if chosenChampion}
-          <img
-            src={`https://ddragon.leagueoflegends.com/cdn/img/champion/tiles/${chosenChampion.id}_0.jpg`}
-            alt={chosenChampion.name}
-            class="w-28 h-28 border border-zinc-700"
-          />
+          <div class="flex flex-col items-center gap-1">
+            <img
+              src={`https://ddragon.leagueoflegends.com/cdn/img/champion/tiles/${chosenChampion.id}_0.jpg`}
+              alt={chosenChampion.name}
+              class="w-28 h-28 border border-zinc-700"
+            />
+            <h3 class="text-amber-400">{chosenChampion.name}</h3>
+          </div>
         {/if}
 
         {#if chosenItems.length > 0}

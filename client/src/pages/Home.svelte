@@ -2,12 +2,16 @@
   import { navigate } from 'svelte5-router';
 </script>
 
-<div class="min-h-screen bg-zinc-950 flex items-center justify-center p-8">
+<svelte:head><title>UpLoL | Home</title></svelte:head>
+
+<main class="min-h-screen bg-zinc-950/80 flex items-center justify-center p-8">
   <section class="max-w-2xl text-center bg-zinc-900 border border-zinc-800 p-10">
     <h1 class="text-4xl text-amber-400 mb-5">League of Legends</h1>
 
     <p class="text-zinc-400 text-lg mb-8">
-      View all the champions in League of Legends and add your Riot ID to your profile!
+      Have a look arround on the site! There's an overview over all the champions and their associated roles - Bravery
+      has also been added, just press a button, and the site will generate a random champion combined with 6 unique
+      items | Ultimate Bravery
     </p>
 
     <div class="flex gap-4 justify-center">
@@ -18,4 +22,4 @@
       >
     </div>
   </section>
-</div>
+</main>

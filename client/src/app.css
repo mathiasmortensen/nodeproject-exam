@@ -17,8 +17,15 @@
 }
 
 #toast-container > .toast-error {
-  background-color: #18181b;
+  background-color: #f04e5b;
   background-image: none !important;
-  color: #f87171;
-  border-color: #ef4444;
+  color: #f0dbdb;
+  border-color: #ceced6;
+}
+
+body {
+  background-image: url('/leaguebackground.webp');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }
