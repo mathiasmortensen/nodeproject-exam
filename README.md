@@ -48,6 +48,8 @@ The first time i played League of Legends i was 9 or 10 years old, today i am 23
 - Resend for emails
 
 ## Project Structure
+
+```
 │   .gitignore
 │   .prettierrc
 │   README.md
@@ -123,10 +125,11 @@ The first time i played League of Legends i was 9 or 10 years old, today i am 23
     │
     └───util
             mailer.js
-
+```
 
 I have for the sake of this visualization left out the obvious Data Dragon files, that are located in the public folder the structure for that folder is this:
 
+```
 │   icon.png
 │   leaguebackground.webp
 │
@@ -149,16 +152,18 @@ I have for the sake of this visualization left out the obvious Data Dragon files
     │       tank.png
     │───spell
             {champNameSpell(Q, W, E, R)}
-
-
+```
 
 ## Environment Variables
+
 Create .env files based on the examples provided on github..
 
 ### client/.env
+
 VITE_BASE_URL=http://localhost:8080
 
 ### server/.env
+
 DB_USER=your_database_user
 DB_HOST_NAME=localhost
 DB_NAME=your_database_name
@@ -176,8 +181,6 @@ TEST_EMAIL=admin@example.com
 TEST_USERNAME=adminuser
 TEST_PASSWORD=adminpassword
 
-
-
 ## Installation
 
 Install deps in both folder (client and server)
@@ -189,9 +192,6 @@ npm install
 cd server
 npm install
 ```
-
-
-
 
 ## Database Explanation and Setup
 
@@ -211,15 +211,18 @@ node db/createDatbase.js
 ```
 
 This creates two tables:
+
 - users
 - favorite_champions
 
 If TEST_EMAIL, TEST_USERNAME, and TEST_PASSWORD are set in the env file, an admin user is created with the provided values.
 
 ## Running the project
+
 I have made a script that builds the frontend when you're in the server directory.
 
 To run the script simply do:
+
 ```bash
 cd server
 npm start
@@ -227,9 +230,10 @@ npm start
 
 The server then runs on http://localhost:8080
 
-
 ## GDPR / Privacy Policy
+
 The application only stores the data needed for authentication and user features..
+
 - Email
 - Username
 - Hashed Password
@@ -244,6 +248,3 @@ When an account is deleted, ALL of their data is removed. The user's account is 
 Passwords are hashed with bcrypt before they are stored.
 
 This web application uses Resend as a mail provider, as it sends welcome emails and password reset emails.
-
-
-
